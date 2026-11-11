@@ -6,10 +6,10 @@ Informe de desempeño comercial en formato de tablero, construido con cuatro de 
 
 | Sección | Archivo | Gráfico |
 |---|---|---|
-| 01 Ventas y publicidad | `01_ventas_mensuales.csv` | Línea (índice base 100) |
-| 02 Rentabilidad del portafolio | `05_productos.csv` | Barras ordenadas |
-| 03 Perfil de clientes | `03_clientes.csv` | Paneles de barras por segmento |
-| 04 Nivel de servicio en entregas | `04_entregas.csv` | Boxplot |
+| 01 Ventas y publicidad | `01_ventas_mensuales.csv` | Líneas con brecha sombreada (índice base 100) |
+| 02 Rentabilidad por producto | `05_productos.csv` | Burbujas (unidades × margen, área = ganancia) |
+| 03 Perfil de clientes | `03_clientes.csv` | Radar por segmento |
+| 04 Servicio de entrega | `04_entregas.csv` | Raincloud (violín + puntos) |
 
 Cada sección presenta un hallazgo en el título y una limitación del análisis.
 
