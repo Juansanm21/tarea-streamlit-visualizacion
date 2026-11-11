@@ -416,7 +416,7 @@ banda.markdown(
     f"""
 <div class="hero">
   <div class="tag">Informe de desempeño comercial · {etiqueta_periodo}</div>
-  <h1>Las ventas crecieron {pct(crec_v)} en 2025, mientras la inversión en publicidad subió solo {pct(crec_p)}</h1>
+  <h1>Las ventas crecieron {pct(crec_v)} en 2025 y la inversión en publicidad, {pct(crec_p)}</h1>
   <p class="sub">Resumen de las ventas, los productos, los clientes y las entregas de la empresa.</p>
   <div class="kpis">
     <div class="kpi"><div class="v">${num(v_tot)} millones</div><div class="l">Ventas totales del periodo</div>
@@ -448,17 +448,17 @@ html(
     f"""
 <div class="concl">
   <div class="tag">Conclusiones</div>
-  <h2>La empresa crece de forma eficiente; el reto ahora es la rentabilidad y la entrega</h2>
+  <h2>Principales resultados y recomendaciones</h2>
   <div class="concl-grid">
     <div class="c-item"><div class="n">+{pct(crec_v)}</div>
       <div class="t">Las ventas crecen sin depender de más publicidad</div>
       <div class="p">Cada $1 invertido en publicidad pasó de generar ${num(rend.loc[2024], 1)} en ventas a
       ${num(rend.loc[2025], 1)}.</div>
       <div class="r"><b>Recomendación</b>Mantener el presupuesto e identificar qué campañas explican el crecimiento.</div></div>
-    <div class="c-item"><div class="n">{pos_u}.º de {len(rank_g)}</div>
+    <div class="c-item"><div class="n">{num(u_all.unidades)} unidades</div>
       <div class="t">El producto más vendido no es el más rentable</div>
-      <div class="p">El {u_all.producto.lower()} es el que más se vende, pero ocupa el puesto {pos_u} de {len(rank_g)}
-      en ganancia.</div>
+      <div class="p">El {u_all.producto.lower()} es el que más se vende, pero {pos_u - 1} de los {len(rank_g)} productos
+      dejan más ganancia que él.</div>
       <div class="r"><b>Recomendación</b>Dar prioridad a los productos de mayor margen: {rank_g[0]}, {rank_g[1]} y {rank_g[2]}.</div></div>
     <div class="c-item"><div class="n">${num(val_tipo[seg_top])}</div>
       <div class="t">Los clientes {PLURAL[seg_top]} son los más valiosos</div>
