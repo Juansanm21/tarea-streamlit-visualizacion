@@ -455,10 +455,10 @@ html(
       <div class="p">Cada $1 invertido en publicidad pasó de generar ${num(rend.loc[2024], 1)} en ventas a
       ${num(rend.loc[2025], 1)}.</div>
       <div class="r"><b>Recomendación</b>Mantener el presupuesto e identificar qué campañas explican el crecimiento.</div></div>
-    <div class="c-item"><div class="n">{num(u_all.unidades)} unidades</div>
+    <div class="c-item"><div class="n">{num(u_all.unidades)}</div>
       <div class="t">El producto más vendido no es el más rentable</div>
-      <div class="p">El {u_all.producto.lower()} es el que más se vende, pero {pos_u - 1} de los {len(rank_g)} productos
-      dejan más ganancia que él.</div>
+      <div class="p">El {u_all.producto.lower()} vendió {num(u_all.unidades)} unidades, pero {pos_u - 1} de los
+      {len(rank_g)} productos dejan más ganancia que él.</div>
       <div class="r"><b>Recomendación</b>Dar prioridad a los productos de mayor margen: {rank_g[0]}, {rank_g[1]} y {rank_g[2]}.</div></div>
     <div class="c-item"><div class="n">${num(val_tipo[seg_top])}</div>
       <div class="t">Los clientes {PLURAL[seg_top]} son los más valiosos</div>
