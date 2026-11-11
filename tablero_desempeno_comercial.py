@@ -115,6 +115,13 @@ button[data-variant="pills"][data-selected="true"] p {{ color: {PRIMARIO} !impor
 [data-testid="stSlider"] [role="slider"] {{ background: {PRIMARIO} !important; }}
 [data-testid="stSliderThumbValue"] {{ font-size: .95rem; font-weight: 600; color: {TINTA} !important; }}
 .st-key-limpiar button {{ border-radius: 8px; border-color: {REJILLA}; }}
+/* Pantallas de portátil: botones más compactos y, si no caben, pasan a una segunda línea */
+.st-key-filtros [data-testid="stButtonGroup"] > div {{ flex-wrap: wrap !important; overflow: visible !important; row-gap: .4rem; }}
+@media (max-width: 1500px) {{
+  .st-key-filtros button[data-variant="pills"], .st-key-filtros button[data-variant="segmented_control"] {{ padding-left: .55rem !important; padding-right: .55rem !important; }}
+  .st-key-filtros button[data-variant="pills"] p, .st-key-filtros button[data-variant="segmented_control"] p {{ font-size: .85rem !important; }}
+  .st-key-filtros {{ padding-left: 1.1rem !important; padding-right: 1.1rem !important; }}
+}}
 
 /* Conclusiones */
 .concl {{ background: {MARINO}; border-radius: 14px; padding: 2.2rem 2.4rem 2.4rem 2.4rem; color: #fff; border-top: 4px solid {OCRE}; }}
