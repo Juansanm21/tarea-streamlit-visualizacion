@@ -1,8 +1,5 @@
 # Tarea Streamlit - Herramientas de Visualización
 # Juan Pablo Sánchez
-#
-# Tablero de desempeño comercial con los datos de práctica de la clase.
-# Para correrlo: streamlit run tablero_desempeno_comercial.py
 
 
 from pathlib import Path
