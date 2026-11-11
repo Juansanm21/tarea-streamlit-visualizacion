@@ -25,7 +25,7 @@ Decisiones de diseño
     - Burbujas escaladas por área y con escala fija entre filtros.
     - Textos escritos para un lector sin formación técnica.
 
-Ejecutar:  python -m streamlit run app.py
+Ejecutar:  python -m streamlit run tablero_desempeno_comercial.py
 """
 
 from pathlib import Path

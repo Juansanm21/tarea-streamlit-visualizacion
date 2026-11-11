@@ -17,5 +17,5 @@ Cada sección presenta un hallazgo en el título y una limitación del análisis
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run tablero_desempeno_comercial.py
 ```
