@@ -1,32 +1,9 @@
-"""
-Tarea Streamlit · Herramientas de Visualización
-================================================
+# Tarea Streamlit - Herramientas de Visualización
+# Juan Pablo Sánchez
+#
+# Tablero de desempeño comercial con los datos de práctica de la clase.
+# Para correrlo: streamlit run tablero_desempeno_comercial.py
 
-Informe de desempeño comercial en formato de tablero (una sola pantalla),
-construido con los datos de práctica del curso. Cuatro secciones, cada una
-con un gráfico tomado del cuaderno "Jupiter Dataviz" de la clase:
-
-    Sección                 Archivo                    Gráfico (sección del cuaderno)
-    1. Ventas ............. 01_ventas_mensuales.csv .. Líneas y áreas (7.1)
-    2. Productos .......... 05_productos.csv ......... Burbujas (3.3 / 7.2)
-    3. Clientes ........... 03_clientes.csv .......... Radar (3.11 / 7.7)
-    4. Entregas ........... 04_entregas.csv .......... Distribución acumulada (4.1)
-
-(02_clientes_por_ciudad_canal.csv no se usa: no aporta al mensaje del informe.)
-
-Híbrido informe + tablero: la barra de filtros (periodo, categoría, tipo de
-cliente, medio de entrega y plazo) recalcula indicadores, gráficos y títulos.
-Los títulos se reescriben para que la afirmación siga siendo cierta con la
-selección. El cierre resume las conclusiones sobre el total de los datos.
-
-Decisiones de diseño
-    - Sin doble eje: ventas y publicidad se comparan con un índice (inicio = 100).
-    - Ingreso = precio × unidades; ganancia = ingreso × margen.
-    - Burbujas escaladas por área y con escala fija entre filtros.
-    - Textos escritos para un lector sin formación técnica.
-
-Ejecutar:  python -m streamlit run tablero_desempeno_comercial.py
-"""
 
 from pathlib import Path
 
@@ -35,17 +12,14 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 1. Configuración, paleta y estilo
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Configuración y estilos ---
 BASE = Path(__file__).parent
 st.set_page_config(page_title="Desempeño comercial 2024–2025", page_icon=str(BASE / "assets" / "favicon.png"),
                    layout="wide", initial_sidebar_state="collapsed")
 
 DATA = BASE / "data"
 
-# Paleta corporativa: azul marino (marca), azul acero (dato principal),
-# verde y ocre (grupos), rojo vino solo para riesgos, grises para contexto.
+# colores
 FONDO, TINTA, TINTA_2, TENUE = "#F5F6F8", "#111827", "#374151", "#6B7280"
 REJILLA, CONTEXTO = "#E5E7EB", "#CBD3DC"
 MARINO, PRIMARIO, VERDE, OCRE, RIESGO = "#0B2545", "#1D4E89", "#3E8E7E", "#C99A2E", "#B23A48"
@@ -53,7 +27,7 @@ CATEGORIA_COL = {"Tecnología": PRIMARIO, "Muebles": OCRE, "Papelería": VERDE}
 TIPO_COL = {"Frecuente": PRIMARIO, "Regular": VERDE, "Ocasional": OCRE}
 MEDIO_COL = {"Moto": PRIMARIO, "Carro": "#8A99AD", "Bicicleta": RIESGO}
 FUENTE = "'IBM Plex Sans', 'Segoe UI', sans-serif"
-ALTO = 360                      # misma altura para los cuatro gráficos
+ALTO = 360  # alto de los gráficos
 PLOT_CONFIG = {"displayModeBar": False}
 
 
@@ -62,7 +36,6 @@ def rgba(hex_color: str, a: float) -> str:
     return f"rgba({int(h[0:2], 16)},{int(h[2:4], 16)},{int(h[4:6], 16)},{a})"
 
 
-# Escala tipográfica (rem): 0.85 etiquetas · 1 texto · 1.3 títulos · 2 cifras · 2.4 portada
 st.markdown(
     f"""
 <style>
@@ -76,7 +49,6 @@ header[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSideb
 .block-container {{ max-width: 100% !important; padding: 1.5rem 2.5rem 3rem 2.5rem !important; }}
 @media (max-width: 800px) {{ .block-container {{ padding: 1rem !important; }} }}
 
-/* Portada */
 .hero {{ background: {MARINO}; border-radius: 14px; padding: 2rem 2.4rem; color: #fff;
         border-bottom: 4px solid {OCRE}; }}
 .hero .tag {{ font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; color: #9FB3C8; font-weight: 600; }}
@@ -92,7 +64,6 @@ header[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSideb
 @media (max-width: 1000px) {{ .kpis {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
                              .kpi + .kpi {{ border-left: none; padding-left: 0; }} }}
 
-/* Tarjetas: misma altura en cada fila */
 [data-testid="stHorizontalBlock"]:has([class*="st-key-card_"]) {{ align-items: stretch; }}
 [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"] > [class*="st-key-card_"]) > [data-testid="stVerticalBlock"] {{ height: 100%; }}
 [class*="st-key-card_"] {{ height: 100%; background: #fff; border-radius: 14px; padding: 1.4rem 1.6rem 1rem 1.6rem;
@@ -102,7 +73,6 @@ header[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="stSideb
 .texto {{ color: {TINTA_2}; font-size: 1rem; line-height: 1.55; margin: 0; min-height: 3.1em; }}
 .texto b {{ color: {TINTA}; font-weight: 600; }}
 
-/* Filtros */
 .st-key-filtros {{ background: #fff; border-radius: 14px; padding: 1rem 1.6rem .6rem 1.6rem; border: 1px solid #ECEEF1;
                    box-shadow: 0 6px 18px rgba(17,24,39,.04); }}
 [data-testid="stWidgetLabel"] p {{ font-size: .85rem !important; font-weight: 600 !important; letter-spacing: .06em;
@@ -115,7 +85,6 @@ button[data-variant="pills"][data-selected="true"] p {{ color: {PRIMARIO} !impor
 [data-testid="stSlider"] [role="slider"] {{ background: {PRIMARIO} !important; }}
 [data-testid="stSliderThumbValue"] {{ font-size: .95rem; font-weight: 600; color: {TINTA} !important; }}
 .st-key-limpiar button {{ border-radius: 8px; border-color: {REJILLA}; }}
-/* Pantallas de portátil: botones más compactos y, si no caben, pasan a una segunda línea */
 .st-key-filtros [data-testid="stButtonGroup"] > div {{ flex-wrap: wrap !important; overflow: visible !important; row-gap: .4rem; }}
 @media (max-width: 1500px) {{
   .st-key-filtros button[data-variant="pills"], .st-key-filtros button[data-variant="segmented_control"] {{ padding-left: .55rem !important; padding-right: .55rem !important; }}
@@ -123,7 +92,6 @@ button[data-variant="pills"][data-selected="true"] p {{ color: {PRIMARIO} !impor
   .st-key-filtros {{ padding-left: 1.1rem !important; padding-right: 1.1rem !important; }}
 }}
 
-/* Conclusiones */
 .concl {{ background: {MARINO}; border-radius: 14px; padding: 2.2rem 2.4rem 2.4rem 2.4rem; color: #fff; border-top: 4px solid {OCRE}; }}
 .concl .tag {{ font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; color: #9FB3C8; font-weight: 600; }}
 .concl h2 {{ font-family: {FUENTE} !important; font-weight: 700; font-size: clamp(1.5rem, 2vw, 2rem); color: #fff !important;
@@ -145,11 +113,9 @@ button[data-variant="pills"][data-selected="true"] p {{ color: {PRIMARIO} !impor
 )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 2. Utilidades
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Funciones ---
 def num(x: float, dec: int = 0) -> str:
-    """Formato colombiano: punto de miles, coma decimal."""
+    # punto de miles y coma decimal
     return f"{x:,.{dec}f}".replace(",", "§").replace(".", ",").replace("§", ".")
 
 
@@ -170,7 +136,6 @@ def articulo(medio: str) -> str:
 
 
 def estilo(fig: go.Figure, leyenda: bool = False) -> go.Figure:
-    """Plantilla común para todos los gráficos."""
     fig.update_layout(
         template="plotly_white", height=ALTO, margin=dict(l=4, r=12, t=34, b=4),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
@@ -189,9 +154,7 @@ def mostrar(fig: go.Figure) -> None:
     st.plotly_chart(fig, use_container_width=True, config=PLOT_CONFIG)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3. Datos (vienen limpios; solo se derivan métricas)
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Datos ---
 @st.cache_data
 def cargar():
     leer = lambda f: pd.read_csv(DATA / f, encoding="utf-8-sig")
@@ -199,23 +162,20 @@ def cargar():
     entregas, productos = leer("04_entregas.csv"), leer("05_productos.csv")
 
     ventas["anio"] = pd.to_datetime(ventas["fecha"]).dt.year
-    productos["ingreso"] = productos["precio"] * productos["unidades"]       # unidades ≠ ingreso
+    productos["ingreso"] = productos["precio"] * productos["unidades"]
     productos["ganancia"] = productos["ingreso"] * productos["margen_pct"] / 100
-    clientes["valor"] = clientes["compras"] * clientes["gasto_medio"]        # valor total por cliente
+    clientes["valor"] = clientes["compras"] * clientes["gasto_medio"]
     return ventas, clientes, entregas, productos
 
 
 ventas, clientes, entregas, productos = cargar()
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 4. Portada (se llena al final, cuando ya se conocen los filtros)
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Encabezado ---
+# se llena al final porque depende de los filtros
 banda = st.empty()
 st.write("")
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 5. Filtros
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Filtros ---
 PERIODOS = ["Todo", "2024", "2025"]
 CATEGORIAS = sorted(productos.categoria.unique())
 TIPOS = ["Frecuente", "Regular", "Ocasional"]
@@ -247,15 +207,16 @@ with st.container(key="filtros"):
         st.button(":material/restart_alt:", key="limpiar", on_click=restablecer, help="Restablecer filtros",
                   use_container_width=True)
 
-# Una selección vacía equivale a "todos", para que el tablero nunca quede en blanco.
+# si no se selecciona nada, se toman todos
 cats = [c for c in CATEGORIAS if c in (cats or CATEGORIAS)]
 segs = [s for s in TIPOS if s in (segs or TIPOS)]
 medios = [m for m in MEDIOS if m in (medios or MEDIOS)]
 etiqueta_periodo = "2024 – 2025" if periodo == "Todo" else periodo
 
 v = ventas if periodo == "Todo" else ventas[ventas.anio == int(periodo)]
-v = v.assign(Ventas=v.ventas_millones / v.ventas_millones.iloc[0] * 100,            # índice: el primer mes
-             Publicidad=v.publicidad_millones / v.publicidad_millones.iloc[0] * 100)  # del periodo vale 100
+# índice: el primer mes del periodo vale 100
+v = v.assign(Ventas=v.ventas_millones / v.ventas_millones.iloc[0] * 100,
+             Publicidad=v.publicidad_millones / v.publicidad_millones.iloc[0] * 100)
 prod = productos[productos.categoria.isin(cats)]
 cli = clientes[clientes.segmento.isin(segs)]
 ent = entregas[entregas.tipo.isin(medios)]
@@ -268,9 +229,7 @@ top_g = prod.loc[prod.ganancia.idxmax()]
 mas_vendido = prod.loc[prod.unidades.idxmax()]
 st.write("")
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 6. Fila 1 · Ventas (líneas con la diferencia sombreada) · Productos (burbujas)
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Ventas y productos ---
 c1, c2 = st.columns(2, gap="medium")
 
 with c1, st.container(key="card_ventas"):
@@ -320,8 +279,9 @@ with c2, st.container(key="card_productos"):
     encabezado("Productos", titulo, texto)
     fig = go.Figure()
     POS_ETIQUETA = {"Escritorio": "middle left", "Estante": "top center", "Silla": "bottom right",
-                    "Marcadores": "middle left", "Agenda": "top center", "Bolígrafo": "top center"}   # evita etiquetas encimadas
-    escala = 2.0 * productos.ganancia.max() / 62 ** 2                   # área ∝ ganancia, escala fija
+                    "Marcadores": "middle left", "Agenda": "top center", "Bolígrafo": "top center"}
+    # tamaño de las burbujas según la ganancia
+    escala = 2.0 * productos.ganancia.max() / 62 ** 2
     for cat in cats:
         g = prod[prod.categoria == cat]
         fig.add_trace(go.Scatter(
@@ -342,16 +302,15 @@ with c2, st.container(key="card_productos"):
 
 st.write("")
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 7. Fila 2 · Clientes (radar) · Entregas (distribución acumulada)
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Clientes y entregas ---
 c3, c4 = st.columns(2, gap="medium")
 
 with c3, st.container(key="card_clientes"):
     variables = {"compras": "Número de compras", "gasto_medio": "Gasto por compra",
                  "valor": "Valor total del cliente", "edad": "Edad"}
-    perfil = clientes.groupby("segmento")[list(variables)].median()   # cliente típico de cada tipo
-    indice = perfil / perfil.max() * 100                              # 100 = el tipo con el valor más alto
+    # mediana de cada tipo de cliente, llevada a una escala de 0 a 100
+    perfil = clientes.groupby("segmento")[list(variables)].median()
+    indice = perfil / perfil.max() * 100
     top_s = perfil.loc[segs, "valor"].idxmax()
     encabezado(
         "Clientes",
@@ -411,9 +370,7 @@ with c4, st.container(key="card_entregas"):
     fig.update_yaxes(title="Pedidos entregados", range=[0, 1.04], tickformat=".0%", dtick=0.25)
     mostrar(fig)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 8. Portada, ya con los filtros aplicados
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Encabezado con los indicadores ---
 a_tiempo = (ent.tiempo_horas <= plazo).mean()
 v_tot, p_tot = v.ventas_millones.sum(), v.publicidad_millones.sum()
 delta_v = "primer año analizado" if periodo == "2024" else f"▲ {pct(crec_v)} más que en 2024"
@@ -440,9 +397,7 @@ banda.markdown(
     unsafe_allow_html=True,
 )
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 9. Conclusiones (sobre el total de los datos; no cambian con los filtros)
-# ──────────────────────────────────────────────────────────────────────────────
+# --- Conclusiones ---
 st.write("")
 st.write("")
 rank_g = productos.sort_values("ganancia", ascending=False).producto.str.lower().tolist()
